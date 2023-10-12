@@ -119,6 +119,9 @@ for line in lines:
         elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1).isdigit(): #MOV B, (Dir)
             B = memory[int(dir2.group(1))]
             alu = B
+        elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1) == "B": #MOV A, (B)
+            A = memory[B]
+            alu = B
         elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1) == "B": #MOV B, (B)
             B = memory[B]
             alu = B
@@ -655,7 +658,7 @@ if error == 0:
                 memory[int(dir1.group(1))] = A | B
                 alu = memory[int(dir1.group(1))]
                 aux = int(dir1.group(1))
-                archivo_out.write(f"0111000 {bin(int(aux))[2:].zfill(8)}")
+                archivo_out.write(f"0111011 {bin(int(aux))[2:].zfill(8)}")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -663,24 +666,33 @@ if error == 0:
             if len(line) == 3 and line[1] == "A" and line[2] == "A": #NOT A, A
                 A = ~A
                 alu = A
+                archivo_out.write(f"0010100 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2] == "B": #NOT A, B
                 A = ~B
                 alu = A
+                archivo_out.write(f"0010101 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "A": #NOT B, A
                 B = ~A
                 alu = B
+                archivo_out.write(f"0010110 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "B": #NOT B, B
                 B = ~B
                 alu = B
+                archivo_out.write(f"0010111 00000000")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "A": #NOT (Dir), A
                 memory[int(dir1.group(1))] = ~A
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"0111100 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "B": #NOT (Dir), B
                 memory[int(dir1.group(1))] = ~B
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"0111101 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and dir1 and dir1.group(1) == "B" and len(line) == 2: #NOT (B)
                 memory[B] = ~A
                 alu = memory[B]
+                archivo_out.write(f"0111110 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -688,27 +700,38 @@ if error == 0:
             if len(line) == 3 and line[1] == "A" and line[2] == "B": #XOR A, B
                 A = A ^ B
                 alu = A
+                archivo_out.write(f"0011000 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2].isdigit(): #XOR A, Lit
                 A = A ^ int(line[2])
                 alu = A
+                archivo_out.write(f"0011010 {bin(int(line[2]))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1).isdigit(): #XOR A, (Dir)
                 A = A ^ memory[int(dir2.group(1))]
                 alu = A
+                aux = int(dir2.group(1))
+                archivo_out.write(f"011111111 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1) == "B": #XOR A, (B)
                 A = A ^ memory[B]
                 alu = A
+                archivo_out.write(f"1000001 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "A": #XOR B, A
                 B = B ^ A
                 alu = B
+                archivo_out.write(f"0011001 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2].isdigit(): #XOR B, Lit
                 B = B ^ int(line[2])
                 alu = B
+                archivo_out.write(f"0011011 {bin(int(line[2]))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1).isdigit(): #XOR B, (Dir)
                 B = B ^ memory[int(dir2.group(1))]
                 alu = B
+                aux = int(dir2.group(1))
+                archivo_out.write(f"1000000 {bin(int(aux))[2:].zfill(8)}")
             elif dir1 and dir1.group(1).isdigit() and len(line) == 2: #XOR (Dir)
                 memory[int(dir1.group(1))] = A ^ B
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1000010 {bin(int(aux))[2:].zfill(8)}")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -716,24 +739,33 @@ if error == 0:
             if len(line) == 3 and line[1] == "A" and line[2] == "A": #SHL A, A
                 A = A << 1
                 alu = A
+                archivo_out.write(f"0011100 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2] == "B": #SHL A, B
                 A = B << 1
                 alu = A
+                archivo_out.write(f"0011101 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "A": #SHL B, A
                 B = A << 1
                 alu = B
+                archivo_out.write(f"0011110 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "B": #SHL B, B
                 B = B << 1
                 alu = B
+                archivo_out.write(f"0011111 00000000")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "A": #SHL (Dir), A
                 memory[int(dir1.group(1))] = A << 1
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1000011 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "B": #SHL (Dir), B
                 memory[int(dir1.group(1))] = ~B << 1
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1000100 {bin(int(aux))[2:].zfill(8)}")
             elif dir1 and dir1.group(1) == "B" and len(line) == 2: #SHL (B)
                 memory[B] = A << 1
                 alu = memory[B]
+                archivo_out.write(f"1000101 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -741,24 +773,33 @@ if error == 0:
             if len(line) == 3 and line[1] == "A" and line[2] == "A": #SHR A, A
                 A = A >> 1
                 alu = A
+                archivo_out.write(f"0100000 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2] == "B": #SHR A, B
                 A = B >> 1
                 alu = A
+                archivo_out.write(f"0100001 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "A": #SHR B, A
                 B = A >> 1
                 alu = B
+                archivo_out.write(f"0100010 00000000")
             elif len(line) == 3 and line[1] == "B" and line[2] == "B": #SHR B, B
                 B = B >> 1
                 alu = B
+                archivo_out.write(f"0100011 00000000")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "A": #SHR (Dir), A
                 memory[int(dir1.group(1))] = A >> 1
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1000110 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and line[2] == "B": #SHR (Dir), B
                 memory[int(dir1.group(1))] = ~B >> 1
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1000111 {bin(int(aux))[2:].zfill(8)}")
             elif dir1 and dir1.group(1) == "B" and len(line) == 2: #SHR (B)
                 memory[B] = A >> 1
                 alu = memory[B]
+                archivo_out.write(f"1001000 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -766,20 +807,27 @@ if error == 0:
             if len(line) == 2 and line[1] == "B": #INC B
                 B += 1
                 alu = B
+                archivo_out.write(f"0100100 00000000")
             elif len(line) == 2 and dir1 and dir1.group(1).isdigit(): #INC (Dir)
                 memory[int(dir1.group(1))] += 1
                 alu = memory[int(dir1.group(1))]
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1001001 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 2 and dir1 and dir1.group(1) == "B": #INC (B)
                 memory[B] += 1
                 alu = memory[B]
+                archivo_out.write(f"1001010 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
         elif line[0] == "RST":
             if len(line) == 2 and dir1 and dir1.group(1).isdigit(): #RST (Dir)
                 memory[int(dir1.group(1))] = 0
+                aux = int(dir1.group(1))
+                archivo_out.write(f"1001011 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 2 and dir1 and dir1.group(1) == "B": #RST (B)
                 memory[B] = 0
+                archivo_out.write(f"1001100 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
@@ -787,43 +835,60 @@ if error == 0:
         elif line[0] == "CMP":
             if len(line) == 3 and line[1] == "A" and line[2] == "B": #CMP A, B
                 alu = A - B
+                archivo_out.write(f"1001101 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2].isdigit(): #CMP A, Lit
                 alu = A - int(line[2])
+                archivo_out.write(f"1001110 {bin(int(line[2]))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "B" and line[2].isdigit(): #CMP B, Lit
                 alu = B - int(line[2])
-            elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1).isdigit(): #CMP A, Dir
+                archivo_out.write(f"1001111 {bin(int(line[2]))[2:].zfill(8)}")
+            elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1).isdigit(): #CMP A, (Dir)
                 alu = A - memory[int(dir2.group(1))]
-            elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1).isdigit(): #CMP B, Dir
+                aux = int(dir2.group(1))
+                archivo_out.write(f"1010000 {bin(int(aux))[2:].zfill(8)}")
+            elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1).isdigit(): #CMP B, (Dir)
                 alu = B - memory[int(dir2.group(1))]
+                aux = int(dir2.group(1))
+                archivo_out.write(f"1010001 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1) == "B": #CMP A, (B)
                 alu = A - memory[B]
+                archivo_out.write(f"1010010 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
         elif len(line) == 2 and line[0] == "JMP" and ((line[1] in labels) or line[1].isdigit()): #JMP Dir
             j = int(line[1]) - 1
+            archivo_out.write(f"1010011 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JEQ" and ((line[1] in labels) or line[1].isdigit()): #JEQ Dir
             if alu == 0:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1010100 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JNE" and ((line[1] in labels) or line[1].isdigit()): #JNE Dir
             if alu != 0:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1010101 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JGT" and ((line[1] in labels) or line[1].isdigit()): #JGT Dir
             if alu <= 127 and alu != 0:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1010110 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLT" and ((line[1] in labels) or line[1].isdigit()): #JLT Dir
             if alu > 127:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1010111 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JGE" and ((line[1] in labels) or line[1].isdigit()): #JGE Dir
             if alu <= 127:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1011000 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLE" and ((line[1] in labels) or line[1].isdigit()): #JLE Dir
             if alu > 127 or alu == 0:
                 j = int(line[1]) - 1
+            archivo_out.write(f"1011001 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JCR" and ((line[1] in labels) or line[1].isdigit()): #JCR Dir
             j = int(line[1]) - 1
+            archivo_out.write(f"1011010 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JOV" and ((line[1] in labels) or line[1].isdigit()): #JOV Dir
             j = int(line[1]) - 1
+            archivo_out.write(f"1011011 {bin(int(line[1]))[2:].zfill(8)}")
         else:
             print(f"La función '{lineaux[count]}' no existe")
             error = 1
