@@ -52,9 +52,10 @@ mem = r'\((.*?)\)'
 file_name = input("Nombre del archivo: ")
 file = open(file_name, "r")
 
-labels = []
+labels = {}
 lineaux = []
 lines = []
+pos = 0
 for line in file:
     lineaux.append(line.strip())
     line = line.strip()
@@ -69,15 +70,17 @@ for line in file:
         line[i] = str(hexadecimal_a_decimal(line[i]))
         line[i] = str(binario_a_decimal(line[i]))
     lines.append(line)
+     
 
 
     
 for line in lines:
     if len(line) == 1 and line[0][-1] == ":": #Label
         if line[0].strip(":") not in labels:
-            labels.append(line[0].strip(":"))
+            labels[line[0].strip(":")] = pos
         else:
             print(f"Label {line.strip(':')} definido anteriormente")
+    pos += 1
 
 count = 0
 for line in lines:
@@ -989,53 +992,87 @@ if error == 0:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
         elif len(line) == 2 and line[0] == "JMP" and ((line[1] in labels) or line[1].isdigit()): #JMP Dir
-            #j = int(line[1]) - 1
-            if int(line[1]) < 0:
+            if line[1] in labels:
+                j = labels[line[1]]
+                archivo_out.write(f"1010011 00000000")
+            else:
+                j = int(line[1]) - 2
+                if int(line[1]) < 0:
                     line[1] = str(256 + int(line[1]))
-            archivo_out.write(f"1010011 {bin(int(line[1]))[2:].zfill(8)}")
+                archivo_out.write(f"1010011 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JEQ" and ((line[1] in labels) or line[1].isdigit()): #JEQ Dir
-            # if alu == 0:
-            #     j = int(line[1]) - 1
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            archivo_out.write(f"1010100 {bin(int(line[1]))[2:].zfill(8)}")
+            if alu == 0:
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1010100 00000000")
+            else:
+                if int(line[1]) < 0:
+                        line[1] = str(256 + int(line[1]))
+                archivo_out.write(f"1010100 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JNE" and ((line[1] in labels) or line[1].isdigit()): #JNE Dir
-            # if alu != 0:
-            #     j = int(line[1]) - 1
-            archivo_out.write(f"1010101 {bin(int(line[1]))[2:].zfill(8)}")
-        elif len(line) == 2 and line[0] == "JGT" and ((line[1] in labels) or line[1].isdigit()): #JGT Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
+            if alu != 0:
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1010101 00000000")
+            else:
+                archivo_out.write(f"1010101 {bin(int(line[1]))[2:].zfill(8)}")
+        elif len(line) == 2 and line[0] == "JGT" and ((line[1] in labels) or line[1].isdigit()): #JGT Dir-------------------------------------
             if alu <= 127 and alu != 0:
-                j = int(line[1]) - 1
-            archivo_out.write(f"1010110 {bin(int(line[1]))[2:].zfill(8)}")
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1010110 00000000")
+            else:
+                archivo_out.write(f"1010110 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLT" and ((line[1] in labels) or line[1].isdigit()): #JLT Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            # if alu > 127:
-            #     j = int(line[1]) - 1
-            archivo_out.write(f"1010111 {bin(int(line[1]))[2:].zfill(8)}")
+            if alu > 127:
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1010111 00000000")
+            else:
+                archivo_out.write(f"1010111 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JGE" and ((line[1] in labels) or line[1].isdigit()): #JGE Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            # if alu <= 127:
-            #     j = int(line[1]) - 1
-            archivo_out.write(f"1011000 {bin(int(line[1]))[2:].zfill(8)}")
+            if alu <= 127:
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1011000 00000000")
+            else:
+                archivo_out.write(f"1011000 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLE" and ((line[1] in labels) or line[1].isdigit()): #JLE Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            # if alu > 127 or alu == 0:
-            #     j = int(line[1]) - 1
-            archivo_out.write(f"1011001 {bin(int(line[1]))[2:].zfill(8)}")
+            if alu > 127 or alu == 0:
+                if line[1] in labels:
+                    j = labels[line[1]]
+                else:
+                    j = int(line[1]) - 2
+            if line[1] in labels:
+                archivo_out.write(f"1011001 00000000")
+            else:
+                archivo_out.write(f"1011001 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JCR" and ((line[1] in labels) or line[1].isdigit()): #JCR Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            #j = int(line[1]) - 1
+            if line[1] in labels:
+                j = labels[line[1]]
+            else:
+                j = int(line[1]) - 2
             archivo_out.write(f"1011010 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JOV" and ((line[1] in labels) or line[1].isdigit()): #JOV Dir
-            if int(line[1]) < 0:
-                    line[1] = str(256 + int(line[1]))
-            #j = int(line[1]) - 1
+            if line[1] in labels:
+                j = labels[line[1]]
+            else:
+                j = int(line[1]) - 2
             archivo_out.write(f"1011011 {bin(int(line[1]))[2:].zfill(8)}")
         else:
             print(f"La función '{lineaux[count]}' no existe")
