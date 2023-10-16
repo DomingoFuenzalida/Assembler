@@ -1,50 +1,50 @@
 DATA:
-  inicio1 x08
-  inicio2 x00
-  n x07
-  pp x00
-  aux1 0
-  aux2 0
-  cont 255
+inicio1 x08
+inicio2 x00
+n x7
+pp x00
+aux1 0
+aux2 0
+cont 255
 CODE:
-  posicion:
-  MOV A, 1
-  ADD A, (cont)
-  MOV (cont), A
-  CMP A, (n)
-  JEQ end
-  MOV A, (n)
-  ADD A, (inicio1)
-  MOV (inicio2), A
-  MOV B, (inicio1)
-  MOV B, (B)
-  MOV A, B
-  MOV B, (inicio2)
-  MOV B, (B)
-  multiplicacion:
-  CMP A,0
-  JEQ sig
-  MOV (aux1), A
-  MOV (aux2), B
-  MOV A, B
-  mult:
-  MOV B, A
-  MOV A, (aux1)
-  SUB A, 1
-  JEQ move
-  MOV (aux1), A
-  MOV A, B
-  ADD A, (aux2)
-  JMP mult
-  move:
-  ADD B, (pp)
-  MOV (pp), B
-  sig:
-  MOV A, 1
-  ADD A, (inicio1)
-  MOV (inicio1), A
-  MOV A, 1
-  ADD A, (inicio2)
-  MOV (inicio2), A
-  JMP posicion
-  end:
+posicion:
+MOV A, 1
+ADD A, (cont)
+MOV (cont), A
+CMP A, (n)
+JEQ end
+MOV A, (n)
+ADD A, (inicio1)
+MOV (inicio2), A
+MOV B, (inicio1)
+MOV B, (B)
+MOV A, B
+MOV B, (inicio2)
+MOV B, (B)
+multiplicacion:
+CMP A,0
+JEQ sig
+MOV (aux1), A
+MOV (aux2), B
+MOV A, B
+mult:
+MOV B, A
+MOV A, (aux1)
+SUB A, 1
+JEQ move
+MOV (aux1), A
+MOV A, B
+ADD A, (aux2)
+JMP mult
+move:
+ADD B, (pp)
+MOV (pp), B
+sig:
+MOV A, 1
+ADD A, (inicio1)
+MOV (inicio1), A
+MOV A, 1
+ADD A, (inicio2)
+MOV (inicio2), A
+JMP posicion
+end:
