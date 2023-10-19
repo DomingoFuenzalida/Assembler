@@ -1,0 +1,121 @@
+DATA:
+  inicio x14
+  largo 20
+  contador 0
+  contador2 0
+  contador3 0
+  exponente 0
+  digito 1
+  mayor 0
+  ind_may 0
+  inicio2 150
+  inicio3 200
+CODE:
+  buscar_mayor:
+  MOV B,(inicio)
+  ADD B, (contador)
+  MOV B,(B)
+  MOV A,(mayor)
+  CMP A,B
+  JGE salto
+  MOV (mayor),B
+  salto:
+  INC (contador)
+  MOV B,(contador)
+  CMP B,(largo)
+  JLT buscar_mayor
+  comenzar:
+  RST (contador)
+  RST (contador2)
+  RST (contador3)
+  MOV A, (exponente)
+  CMP A, 0
+  JEQ iterar
+  INC (digito)
+  CMP A,1
+  JEQ iterar
+  MOV B,4
+  MOV (digito),B
+  CMP A,2
+  JEQ iterar
+  MOV B,8
+  MOV (digito),B
+  CMP A,3
+  JEQ iterar
+  MOV B,16
+  MOV (digito),B
+  CMP A,4
+  JEQ iterar
+  MOV B,32
+  MOV (digito),B
+  CMP A,5
+  JEQ iterar
+  MOV B,64
+  MOV (digito),B
+  CMP A,6
+  JEQ iterar
+  MOV B,128
+  MOV (digito),B
+  iterar:
+  MOV A, (digito)
+  CMP A,(mayor)
+  JLE no_sumar
+  INC (ind_may)
+  MOV A, (ind_may)
+  CMP A, 2
+  JEQ end
+  no_sumar:
+  MOV B, (inicio)
+  ADD B,(contador)
+  MOV B,(B)
+  MOV A,B
+  AND A, (digito)
+  CMP A, (digito)
+  JEQ guardar1
+  MOV A, B
+  MOV B,(inicio2)
+  ADD B,(contador2)
+  MOV (B), A
+  INC (contador2)
+  JMP seguir
+  guardar1:
+  MOV A, B
+  MOV B,(inicio3)
+  ADD B,(contador3)
+  MOV (B), A
+  INC (contador3)
+  seguir:
+  INC (contador)
+  MOV A,(contador)
+  CMP A, (largo)
+  JNE iterar
+  RST (contador)
+  ciclo:
+  MOV B,(inicio2)
+  ADD B,(contador)
+  MOV A, (B)
+  MOV B,(inicio)
+  ADD B, (contador)
+  MOV (B), A
+  INC (contador)
+  MOV A,(contador)
+  CMP A, (contador2)
+  JLT ciclo
+  RST (contador2)
+  ciclo2:
+  MOV B,(inicio3)
+  ADD B,(contador2)
+  MOV A, (B)
+  MOV B,(inicio)
+  ADD B, (contador)
+  MOV (B), A
+  INC (contador)
+  INC (contador2)
+  MOV A,(contador2)
+  CMP A, (contador3)
+  JLT ciclo2
+  INC (exponente)
+  MOV A,(exponente)
+  CMP A, 8
+  JLT comenzar
+  end:

@@ -1,0 +1,67 @@
+DATA:
+    inicio1 20
+    inicio2 27
+    n 5
+    pp x00
+    aux1 0
+    aux2 0
+    cont 255
+CODE:
+  posicion:
+    MOV A, 1
+    ADD A, (cont)
+    MOV (cont), A
+    CMP A, (n)
+    JEQ end
+    MOV B, (inicio1)
+    MOV A, (B)
+    MOV B, (inicio2)
+    MOV B, (B)
+    CMP A, B
+    JLE multiplicacion
+  multiplicacion2:
+    CMP B,0
+    JEQ sig
+    MOV (aux1), B
+    MOV (aux2), A
+    MOV B, A
+    mult2:
+    MOV A, B
+    MOV B, (aux1)
+    SUB B, 1
+    JEQ move2
+    MOV (aux1), B
+    MOV B, A
+    ADD B, (aux2)
+    JMP mult
+    move2:
+    ADD A, (pp)
+    MOV (pp), A
+    JMP sig
+    multiplicacion:
+    CMP A,0
+    JEQ sig
+    MOV (aux1), A
+    MOV (aux2), B
+    MOV A, B
+    mult:
+    MOV B, A
+    MOV A, (aux1)
+    SUB A, 1
+    JEQ move
+    MOV (aux1), A
+    MOV A, B
+    ADD A, (aux2)
+    JMP mult
+    move:
+    ADD B, (pp)
+    MOV (pp), B
+    sig:
+    MOV A, 1
+    ADD A, (inicio1)
+    MOV (inicio1), A
+    MOV A, 1
+    ADD A, (inicio2)
+    MOV (inicio2), A
+    JMP posicion
+    end:

@@ -1,0 +1,27 @@
+DATA:
+i x00
+var2 11
+CODE:
+inicio:
+MOV B,2
+MOV A,B
+MOV B,A
+MOV A,(i)
+SUB A,1
+JCR medio
+JEQ inicio
+medio:
+MOV (18),A
+MOV A,B
+ADD A,(1)
+MOV (1),A
+SHR B,B
+JMP b00001111
+CMP B,(i)
+JLE 11
+SHL (var2),B
+INC (B)
+CMP A,0
+MOV (B),A
+XOR A,-10
+RST (var2)

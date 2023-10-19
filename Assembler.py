@@ -5,9 +5,17 @@ B = 0
 alu = 0
 error = 0
 
+datamem = input("Memoria de datos: ")
 for i in range(256):
     memory.append(0)
-
+try:
+    datos = open(datamem, "r")
+    pos1 = 0
+    for i in datos:
+        memory[pos1] = int(i)
+        pos1 += 1
+except:
+    pass
 def hexadecimal_a_decimal(hexadecimal):
     try:
         decimal = hexadecimal
@@ -30,7 +38,7 @@ def binario_a_decimal(binario):
     try:
         decimal = binario
         # Elimina el prefijo "b" si está presente en la cadena
-        if binario.startswith("b"):
+        if binario.startswith("b") and binario.strip("b").isdigit():
             binario = binario[1:]
 
             # Convierte el valor binario a decimal
@@ -53,10 +61,12 @@ file_name = input("Nombre del archivo: ")
 file = open(file_name, "r")
 variable = {}
 labels = {}
-lineaux = []
+lineaux1 = []
 lines = []
 pos = 0
+data = 0
 for line in file:
+    lineaux = []
     if line.strip() == "DATA:":
         data = 1
         pos = -1
@@ -66,11 +76,17 @@ for line in file:
         lineaux = line.strip()
         lineaux = lineaux.split(" ")
         variable[lineaux[0]] = pos
-        valor = hexadecimal_a_decimal(lineaux[1])
-        valor = binario_a_decimal(valor)
-        memory[pos] = int(valor)
+        if len(lineaux) == 2:
+            valor = hexadecimal_a_decimal(lineaux[1])
+            valor = binario_a_decimal(valor)
+            memory[pos] = int(valor)
+        elif len(lineaux) == 1:
+            pass
+        else:
+            print("Error, variable mal ingresada")
+            error = 1
     elif data == 0:
-        lineaux.append(line.strip())
+        lineaux1.append(line.strip())
         line = line.strip()
         line = re.split(r'[ ,]', line)
         line = [elemento for elemento in line if elemento]
@@ -96,9 +112,9 @@ for line in lines:
             print(f"Label {line.strip(':')} definido anteriormente")
     pos += 1
 
-count = 2
+count = 0
 for line in lines:
-    
+
     try:
         if int(line[2]) < 0:
             line[2] = str(256 + int(line[2]))
@@ -129,6 +145,8 @@ for line in lines:
         pass
     if len(line) == 1 and line[0][-1] == ":": #Label
         pass
+    elif len(line) == 0:
+        pass
     elif line[0] == "MOV":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #MOV A, B
             pass
@@ -155,7 +173,7 @@ for line in lines:
         elif len(line) == 3 and dir1 and dir1.group(1) == "B" and line[2] == "A": #MOV (B), A
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "ADD":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #ADD A, B
@@ -175,7 +193,7 @@ for line in lines:
         elif len(line) == 3 and dir1 and dir1.group(1).isdigit() and len(line) == 2: #ADD (Dir)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "SUB":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #SUB A, B
@@ -195,7 +213,7 @@ for line in lines:
         elif dir1 and dir1.group(1).isdigit() and len(line) == 2: #SUB (Dir)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "AND":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #AND A, B
@@ -215,7 +233,7 @@ for line in lines:
         elif dir1 and dir1.group(1).isdigit() and len(line) == 2: #AND (Dir)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "OR":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #OR A, B
@@ -235,7 +253,7 @@ for line in lines:
         elif dir1 and dir1.group(1).isdigit() and len(line) == 2: #OR (Dir)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "NOT":
         if len(line) == 3 and line[1] == "A" and line[2] == "A": #NOT A, A
@@ -253,7 +271,7 @@ for line in lines:
         elif len(line) == 3 and dir1 and dir1.group(1) == "B" and len(line) == 2: #NOT (B)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "XOR":
         if len(line) == 3 and line[1] == "A" and line[2] == "B": #XOR A, B
@@ -273,7 +291,7 @@ for line in lines:
         elif dir1 and dir1.group(1).isdigit() and len(line) == 2: #XOR (Dir)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "SHL":
         if len(line) == 3 and line[1] == "A" and line[2] == "A": #SHL A, A
@@ -291,7 +309,7 @@ for line in lines:
         elif dir1 and dir1.group(1) == "B" and len(line) == 2: #SHL (B)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "SHR":
         if len(line) == 3 and line[1] == "A" and line[2] == "A": #SHR A, A
@@ -309,7 +327,8 @@ for line in lines:
         elif dir1 and dir1.group(1) == "B" and len(line) == 2: #SHR (B)
             pass
         else:
-            pass
+            print(f"La función '{lineaux1[count]}' no existe")
+            error = 1
     elif line[0] == "INC":
         if len(line) == 2 and line[1] == "B": #INC B
             pass
@@ -318,7 +337,7 @@ for line in lines:
         elif len(line) == 2 and dir1 and dir1.group(1) == "B": #INC (B)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif line[0] == "RST":
         if len(line) == 2 and dir1 and dir1.group(1).isdigit(): #RST (Dir)
@@ -326,7 +345,7 @@ for line in lines:
         elif len(line) == 2 and dir1 and dir1.group(1) == "B": #RST (B)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
         alu = 0
     elif line[0] == "CMP":
@@ -343,7 +362,7 @@ for line in lines:
         elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1) == "B": #CMP A, (B)
             pass
         else:
-            print(f"La función '{lineaux[count]}' no existe")
+            print(f"La función '{lineaux1[count]}' no existe")
             error = 1
     elif len(line) == 2 and line[0] == "JMP" and ((line[1] in labels) or line[1].isdigit()): #JMP Dir
         pass
@@ -366,7 +385,7 @@ for line in lines:
     elif len(line) == 1 and line[0][-1] == ":":
         pass
     else:
-        print(f"La función '{lineaux[count]}' no existe")
+        print(f"La función '{lineaux1[count]}' no existe")
         error = 1
     count += 1
 
@@ -411,6 +430,9 @@ if error == 0:
         except:
             pass
         if len(line) == 1 and line[0][-1] == ":": #Label
+            # archivo_out.write("label\n")
+            pass
+        elif len(line) == 0:
             pass
         elif line[0] == "MOV":
             if len(line) == 3 and line[1] == "A" and line[2] == "B": #MOV A, B
@@ -914,50 +936,55 @@ if error == 0:
         elif line[0] == "CMP":
             if len(line) == 3 and line[1] == "A" and line[2] == "B": #CMP A, B
                 alu = A - B
+                if alu < 0:
+                    alu = 256 + alu
                 archivo_out.write(f"1001101 00000000")
             elif len(line) == 3 and line[1] == "A" and line[2].isdigit(): #CMP A, Lit
                 if int(line[2]) < 0:
                     line[2] = str(256 + int(line[2]))
                 alu = A - int(line[2])
+                if alu < 0:
+                    alu = 256 + alu
                 archivo_out.write(f"1001110 {bin(int(line[2]))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "B" and line[2].isdigit(): #CMP B, Lit
                 if int(line[2]) < 0:
                     line[2] = str(256 + int(line[2]))
                 alu = B - int(line[2])
+                if alu < 0:
+                    alu = 256 + alu
                 archivo_out.write(f"1001111 {bin(int(line[2]))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1).isdigit(): #CMP A, (Dir)
                 alu = A - memory[int(dir2.group(1))]
+                if alu < 0:
+                    alu = 256 + alu
                 aux = int(dir2.group(1))
                 if aux < 0:
                     aux = 256 + aux
                 archivo_out.write(f"1010000 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "B" and dir2 and dir2.group(1).isdigit(): #CMP B, (Dir)
                 alu = B - memory[int(dir2.group(1))]
+                if alu < 0:
+                    alu = 256 + alu
                 aux = int(dir2.group(1))
                 if aux < 0:
                     aux = 256 + aux
                 archivo_out.write(f"1010001 {bin(int(aux))[2:].zfill(8)}")
             elif len(line) == 3 and line[1] == "A" and dir2 and dir2.group(1) == "B": #CMP A, (B)
                 alu = A - memory[B]
+                if alu < 0:
+                    alu = 256 + alu
                 archivo_out.write(f"1010010 00000000")
             else:
                 print(f"La función '{lineaux[count]}' no existe")
                 error = 1
         elif len(line) == 2 and line[0] == "JMP" and ((line[1] in labels) or line[1].isdigit()): #JMP Dir
             if line[1] in labels:
-                j = labels[line[1]] - 1
                 archivo_out.write(f"1010011 00000000")
             else:
-                j = int(line[1]) - 2
                 if int(line[1]) < 0:
                     line[1] = str(256 + int(line[1]))
                 archivo_out.write(f"1010011 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JEQ" and ((line[1] in labels) or line[1].isdigit()): #JEQ Dir
-            if alu == 0:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
             if line[1] in labels:
                 archivo_out.write(f"1010100 00000000")
             else:
@@ -965,67 +992,44 @@ if error == 0:
                         line[1] = str(256 + int(line[1]))
                 archivo_out.write(f"1010100 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JNE" and ((line[1] in labels) or line[1].isdigit()): #JNE Dir
-            if alu != 0:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
+
             if line[1] in labels:
                 archivo_out.write(f"1010101 00000000")
             else:
                 archivo_out.write(f"1010101 {bin(int(line[1]))[2:].zfill(8)}")
-        elif len(line) == 2 and line[0] == "JGT" and ((line[1] in labels) or line[1].isdigit()): #JGT Dir-------------------------------------
-            if alu <= 127 and alu != 0:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
+        elif len(line) == 2 and line[0] == "JGT" and ((line[1] in labels) or line[1].isdigit()): #JGT Dir
+
             if line[1] in labels:
                 archivo_out.write(f"1010110 00000000")
             else:
                 archivo_out.write(f"1010110 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLT" and ((line[1] in labels) or line[1].isdigit()): #JLT Dir
-            if alu > 127:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
+
             if line[1] in labels:
                 archivo_out.write(f"1010111 00000000")
             else:
                 archivo_out.write(f"1010111 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JGE" and ((line[1] in labels) or line[1].isdigit()): #JGE Dir
-            if alu <= 127:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
+
             if line[1] in labels:
                 archivo_out.write(f"1011000 00000000")
             else:
                 archivo_out.write(f"1011000 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JLE" and ((line[1] in labels) or line[1].isdigit()): #JLE Dir
-            if alu > 127 or alu == 0:
-                if line[1] in labels:
-                    j = labels[line[1]] - 1
-                else:
-                    j = int(line[1]) - 2
             if line[1] in labels:
                 archivo_out.write(f"1011001 00000000")
             else:
                 archivo_out.write(f"1011001 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JCR" and ((line[1] in labels) or line[1].isdigit()): #JCR Dir
             if line[1] in labels:
-                j = labels[line[1]] - 1
+                archivo_out.write(f"1011010 00000000")
             else:
-                j = int(line[1]) - 2
-            archivo_out.write(f"1011010 {bin(int(line[1]))[2:].zfill(8)}")
+                archivo_out.write(f"1011010 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 2 and line[0] == "JOV" and ((line[1] in labels) or line[1].isdigit()): #JOV Dir
             if line[1] in labels:
-                j = labels[line[1]] - 1
+                archivo_out.write(f"1011011 00000000")
             else:
-                j = int(line[1]) - 2
-            archivo_out.write(f"1011011 {bin(int(line[1]))[2:].zfill(8)}")
+                archivo_out.write(f"1011011 {bin(int(line[1]))[2:].zfill(8)}")
         elif len(line) == 1 and line[0][-1] == ":":
             pass
         else:
